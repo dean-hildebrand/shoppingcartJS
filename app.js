@@ -57,15 +57,33 @@ class UI {
       <!-- end of single product -->
       `;
     });
-    productsDOM.innerHTML = result
+    productsDOM.innerHTML = result;
+  }
+  getBagBtns() {
+    const buttons = [...document.querySelectorAll(".bag-btn")];
+
+    // using dataset attribute to get each buttons id
+    buttons.forEach(button => {
+      let id = button.dataset.id;
+      let inCart = cart.find(item => item.id === id);
+      if (inCart) {
+        button.innerText = "In Cart";
+        button.disable = true;
+      } else {
+        button.addEventListener("click", e => {
+          button.innerText = "In Cart";
+          button.disable = true;
+        });
+      }
+    });
   }
 }
 // local storage
 class Storage {
   // static method, don't need to to create an instance
   // using local storage to save that item
-  static saveProducts(products){
-    localStorage.setItem('products', JSON.stringify(products))
+  static saveProducts(products) {
+    localStorage.setItem("products", JSON.stringify(products));
   }
 }
 
@@ -74,8 +92,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const products = new Products();
 
   // get all products
-  products.getProducts().then(products => {
-    ui.displayProducts(products)
-    Storage.saveProducts(products)
-  });
+  products
+    .getProducts()
+    .then(products => {
+      ui.displayProducts(products);
+      Storage.saveProducts(products);
+    })
+    .then(() => {
+      ui.getBagBtns();
+    });
 });
