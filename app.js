@@ -2,7 +2,7 @@
 
 const cartBtn = document.querySelector(".cart-btn");
 const closeCartBtn = document.querySelector(".close-cart");
-const clearCartBrn = document.querySelector(".clear-cart");
+const clearCartBtn = document.querySelector(".clear-cart");
 const cartDOM = document.querySelector(".cart");
 const cartOverlay = document.querySelector(".cart-overlay");
 const cartItems = document.querySelector(".cart-items");
@@ -140,9 +140,9 @@ class UI {
       this.addCartItem(item);
     });
   }
-  cartLogic(cart) {
+  cartLogic() {
     // clear cart button
-    clearCartBrn.addEventListener("click", () => {
+    clearCartBtn.addEventListener("click", () => {
       this.clearCart();
     });
     // cart functionality
@@ -152,7 +152,27 @@ class UI {
         let id = removeItem.dataset.id
         cartContent.removeChild(removeItem.parentElement.parentElement)
         this.removeItem(id)
-
+      } else if (e.target.classList.contains("fa-chevron-up")) {
+        let addAmount = e.target
+        let id = addAmount.dataset.id
+        let tempItem = cart.find(item => item.id === id);
+        tempItem.amount = tempItem.amount + 1;
+        Storage.saveCart(cart)
+        this.setCartValues(cart)
+        addAmount.nextElementSibling.innerText = tempItem.amount
+      } else if (e.target.classList.contains("fa-chevron-down")) {
+        let subAmount = e.target
+        let id = subAmount.dataset.id
+        let tempItem = cart.find(item => item.id === id)
+        tempItem.amount = tempItem.amount - 1;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart)
+          this.setCartValues(cart)
+          subAmount.previousElementSibling.innerText = tempItem.amount
+        } else {
+          cartContent.removeChild(subAmount.parentElement.parentElement)
+          this.removeItem(id)
+        }
       }
     })
   }
