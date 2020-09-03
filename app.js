@@ -11,6 +11,8 @@ const cartContent = document.querySelector(".cart-content");
 const productsDOM = document.querySelector(".products-center");
 // cart items
 let cart = [];
+// buttons
+let buttonsDOM = [];
 
 // getting the products
 class Products {
@@ -61,7 +63,7 @@ class UI {
   }
   getBagBtns() {
     const buttons = [...document.querySelectorAll(".bag-btn")];
-
+    buttonsDOM = buttons
     // using dataset attribute to get each buttons id
     buttons.forEach(button => {
       let id = button.dataset.id;
@@ -69,21 +71,46 @@ class UI {
       if (inCart) {
         button.innerText = "In Cart";
         button.disable = true;
-      } else {
+      }
         button.addEventListener("click", e => {
           button.innerText = "In Cart";
           button.disable = true;
+          // get product from products
+          let cartItem = { ...Storage.getProduct(id), amount: 1 }
+          // add product to the cart
+          cart = [...cart, cartItem]
+          // save cart in localStorage
+          Storage.saveCart(cart)
+          // set cart values
+          this.setCartValues(cart)
+          // display cart item
+          // show the cart with overlay
         });
-      }
     });
+  }
+  // adding price total and item total
+  setCartValues(cart){
+    let tempTotal = 0
+    let itemTotal = 0
+    cart.map(item => {
+      tempTotal += item.price * item.amount
+      itemTotal += item.amount
+    })
   }
 }
 // local storage
 class Storage {
-  // static method, don't need to to create an instance
+  // static method, don't need to to create an instance and can be used in other classes
   // using local storage to save that item
   static saveProducts(products) {
     localStorage.setItem("products", JSON.stringify(products));
+  }
+  static getProduct(id){
+    let products = JSON.parse(localStorage.getItem('products'))
+    return products.find(product => product.id === id)
+  }
+  static saveCart(cart){
+    localStorage.setItem('cart', JSON.stringify(cart))
   }
 }
 
