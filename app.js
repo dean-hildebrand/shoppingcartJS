@@ -61,12 +61,21 @@ class UI {
   }
 }
 // local storage
-class Storage {}
+class Storage {
+  // static method, don't need to to create an instance
+  // using local storage to save that item
+  static saveProducts(products){
+    localStorage.setItem('products', JSON.stringify(products))
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const ui = new UI();
   const products = new Products();
 
   // get all products
-  products.getProducts().then(products => ui.displayProducts(products));
+  products.getProducts().then(products => {
+    ui.displayProducts(products)
+    Storage.saveProducts(products)
+  });
 });
