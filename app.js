@@ -14,7 +14,7 @@ let cart = [];
 // buttons
 let buttonsDOM = [];
 
-// getting the products
+// getting the products -------------------------------------------------------------------------------------------------------------------
 class Products {
   // async await will ALWAYS return the promise. Chain .then. await key word waits until the promise is settled then returns the products
   async getProducts() {
@@ -35,7 +35,7 @@ class Products {
     }
   }
 }
-// display products
+// display products ------------------------------------------------------------------------------------------
 class UI {
   displayProducts(products) {
     let result = "";
@@ -70,11 +70,11 @@ class UI {
       let inCart = cart.find(item => item.id === id);
       if (inCart) {
         button.innerText = "In Cart";
-        button.disable = true;
+        button.disabled = true;
       }
       button.addEventListener("click", e => {
         button.innerText = "In Cart";
-        button.disable = true;
+        button.disabled = true;
         // get product from products
         let cartItem = { ...Storage.getProduct(id), amount: 1 };
         // add product to the cart
@@ -124,25 +124,51 @@ class UI {
     cartOverlay.classList.add("transparentBcg");
     cartDOM.classList.add("showCart");
   }
-  hideCart(){
+  hideCart() {
     cartOverlay.classList.remove("transparentBcg");
     cartDOM.classList.remove("showCart");
   }
   setupApp() {
- cart = Storage.getCart()
- this.setCartValues(cart)
- this.populateCart(cart)
- cartBtn.addEventListener('click', this.showCart)
- closeCartBtn.addEventListener('click', this.hideCart)
+    cart = Storage.getCart();
+    this.setCartValues(cart);
+    this.populateCart(cart);
+    cartBtn.addEventListener("click", this.showCart);
+    closeCartBtn.addEventListener("click", this.hideCart);
   }
-  populateCart(cart){
+  populateCart(cart) {
     cart.forEach(item => {
-      this.addCartItem(item)
-    })
+      this.addCartItem(item);
+    });
   }
-
+  cartLogic(cart) {
+    // clear cart button
+    clearCartBrn.addEventListener("click", () => {
+      this.clearCart();
+    });
+    // cart functionality
+  }
+  clearCart() {
+    let cartItems = cart.map(item => item.id);
+    cartItems.forEach(id => this.removeItem(id));
+    while (cartContent.children.length > 0) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+    this.hideCart()
+  }
+  removeItem(id) {
+    cart = cart.filter(item => item.id !== id);
+    this.setCartValues(cart);
+    Storage.saveCart(cart);
+    let button = this.getSingleButton(id);
+    button.disabled = false;
+    button.innerHTML = `<i class="fas fa-shopping-cart"></i>add to cart`;
+  }
+  getSingleButton(id) {
+    // find the button that was click to add that specific item to the cart
+    return buttonsDOM.find(button => button.dataset.id === id);
+  }
 }
-// local storage
+// local storage -------------------------------------------------------------------------------------------------------------
 class Storage {
   // static method, don't need to to create an instance and can be used in other classes
   // using local storage to save that item
@@ -156,8 +182,10 @@ class Storage {
   static saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
-  static getCart(){
-    return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+  static getCart() {
+    return localStorage.getItem("cart")
+      ? JSON.parse(localStorage.getItem("cart"))
+      : [];
   }
 }
 
@@ -175,5 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(() => {
       ui.getBagBtns();
+      ui.cartLogic();
     });
 });
